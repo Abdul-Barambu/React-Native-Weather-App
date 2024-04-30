@@ -1,11 +1,13 @@
 import { View, Text, Image, TextInput, TouchableOpacity, ScrollView } from 'react-native'
-import React, { useState } from 'react'
+import React, { useCallback, useState } from 'react'
 import { StatusBar } from 'expo-status-bar'
 import { theme } from '../theme'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { Feather } from '@expo/vector-icons';
 import { Entypo } from '@expo/vector-icons';
 import { FontAwesome } from '@expo/vector-icons';
+import { debounce } from 'lodash'
+import { fetchLocations } from '../api/Weather'
 
 const HomeScreen = () => {
 
@@ -22,6 +24,16 @@ const HomeScreen = () => {
         console.log('Location: ' + loc)
     }
 
+    const handleSearch = (value) => {
+        // fetch location
+        if (value.length > 2) {
+            fetchLocations({ cityName: value }).then(data => {
+                console.log(data)
+            })
+        }
+    }
+    const handleTextDebounce = useCallback(debounce(handleSearch, 1200), [])
+
     return (
         <View className="flex-1 relative">
             <StatusBar style="light" />
@@ -35,6 +47,7 @@ const HomeScreen = () => {
                         {
                             showSearch ? (
                                 <TextInput
+                                    onPress={handleTextDebounce}
                                     placeholder='Search city'
                                     placeholderTextColor={'lightgray'}
                                     className="pl-6 h-10 flex-1 text-base text-white"
